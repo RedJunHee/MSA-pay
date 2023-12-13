@@ -18,7 +18,7 @@ services:
       - MYSQL_PASSWORD=mysqlpw
 
   membership-service:
-    image: fastcampus-pay-membership-service:1.0.0
+    image: fastcampus-pay-membership-service:1.0.2
     networks:
       - fastcampuspay_network
     ports:

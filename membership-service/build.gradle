@@ -6,7 +6,7 @@ ext{
 }
 
 group = 'com.fastcampuspay.membership'
-version = '1.0.0'
+version = '1.0.2'
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -18,7 +18,7 @@ dependencies {
     implementation project(path: ':common')
 
     testImplementation 'junit:junit:4.13.1'
-    runtimeOnly 'com.h2database:h2'
+    //runtimeOnly 'com.h2database:h2'
     runtimeOnly 'mysql:mysql-connector-java'
 //    implementation group: 'org.axonframework', name: 'axon-configuration', version: "$axonVersion"
 //    implementation group: 'org.axonframework', name: 'axon-spring-boot-starter', version: "$axonVersion"
@@ -26,8 +26,16 @@ dependencies {
 
 docker {
     println(tasks.bootJar.outputs.files)
+
+    // 이미지 이름
     name rootProject.name+'-'+project.name + ":" + version
+
+    // 어떤 Dockerfile 사용
     dockerfile file('./Dockerfile')
+
+    // 어떤 파일들을 DockerFile에 복사할 것인가
     files tasks.bootJar.outputs.files
+
+    //도커 파일에 전달할 인자
     buildArgs(['JAR_FILE': tasks.bootJar.outputs.files.singleFile.name])
 }
