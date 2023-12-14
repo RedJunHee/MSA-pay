@@ -5,8 +5,8 @@ ext{
     axonVersion = "4.6.0"
 }
 
-group = 'com.fastcampuspay.membership'
-version = '1.0.2'
+group = 'com.fastcampuspay.banking'
+version = '1.0.0'
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
