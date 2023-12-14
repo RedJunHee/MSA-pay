@@ -19,9 +19,14 @@ import javax.transaction.Transactional;
 @Transactional
 public class RegisterBankAccountService implements RegisterBankAccountUseCase {
 
+
+    //
     private final RegisterBankAccountPort registerBankAccountPort;
-    private final RegisteredBankAccountMapper mapper;
+
+    // External Bank Port
     private final RequestBankAccountInfoPort requestBankAccountInfoPort;
+
+    private final RegisteredBankAccountMapper mapper;
     @Override
     public RegisteredBankAccount registerBankAccount(RegisterBankAccountCommand command) {
 
@@ -29,6 +34,7 @@ public class RegisterBankAccountService implements RegisterBankAccountUseCase {
         // command.getMembershipId()
 
         // (멤버 서비스도 확인?) 여기서는 skip
+        // 원래는 멤버 서비스에 정상적인 멤버쉽 사용자인지 확인을 하고  다음 스탭으로 넘어가야 한다.
 
         // 1. 외부 실제 은행에 등록이 가능한 계좌인지(정상인지) 확인한다.
         // 외부의 은행에 이 계좌 정상인지? 확인을 해야해요.
@@ -40,7 +46,7 @@ public class RegisterBankAccountService implements RegisterBankAccountUseCase {
         boolean accountIsValid =  accountInfo.isValid();
 
         // 2. 등록가능한 계좌라면, 등록한다. 성공하면, 등록에 성공한 등록 정보를 리턴
-        // 2-1. 등록가능하지 않은 계좌라면. 에러를 리턴
+        // 2-1. 등록이 불가능 계좌. 에러를 리턴
         if(accountIsValid) {
             // 등록 정보 저장
             RegisteredBankAccountJpaEntity savedAccountInfo = registerBankAccountPort.createRegisteredBankAccount(

@@ -16,6 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class RegisterBankAccountController {
 
     private final RegisterBankAccountUseCase registeredBankAccountUseCase;
+
+
+
+    // 1. Bank Account 등록 하는 커멘드 생성한다.
+    // 2. Bank Account 등록 하는 UseCase 발생 시킴.
     @PostMapping(path = "/banking/account/register")
     RegisteredBankAccount registerMembership(@RequestBody RegisterBankAccountRequest request) {
         RegisterBankAccountCommand command = RegisterBankAccountCommand.builder()
