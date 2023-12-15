@@ -30,12 +30,13 @@ public class RegisterBankAccountService implements RegisterBankAccountUseCase {
     @Override
     public RegisteredBankAccount registerBankAccount(RegisterBankAccountCommand command) {
 
-        // 은행 계좌를 등록해야하는 서비스 (비즈니스 로직)
-        // command.getMembershipId()
 
-        // (멤버 서비스도 확인?) 여기서는 skip
+        //todo (멤버 서비스도 확인?) 여기서는 skip
+        // command.getMembershipId()
         // 원래는 멤버 서비스에 정상적인 멤버쉽 사용자인지 확인을 하고  다음 스탭으로 넘어가야 한다.
 
+
+        // 은행 계좌를 등록해야하는 서비스 (비즈니스 로직)
         // 1. 외부 실제 은행에 등록이 가능한 계좌인지(정상인지) 확인한다.
         // 외부의 은행에 이 계좌 정상인지? 확인을 해야해요.
         // Biz Logic -> External System
@@ -46,6 +47,8 @@ public class RegisterBankAccountService implements RegisterBankAccountUseCase {
         boolean accountIsValid =  accountInfo.isValid();
 
         // 2. 등록가능한 계좌라면, 등록한다. 성공하면, 등록에 성공한 등록 정보를 리턴
+        //todo 이미 등록된 계정이라면?
+
         // 2-1. 등록이 불가능 계좌. 에러를 리턴
         if(accountIsValid) {
             // 등록 정보 저장
