@@ -14,6 +14,7 @@
         <module name="membership-service.fastcampus-pay.membership-service.main" />
         <module name="fastcampus-pay.banking-service.main" />
         <module name="common.fastcampus-pay.common.main" />
+        <module name="fastcampus-pay.task-consumer.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="11" />
