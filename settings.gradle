@@ -8,4 +8,6 @@ include 'logging-consumer'
 include 'logging-consumer'
 include 'logging-consumer'
 include 'logging-consumer'
+include 'logging-consumer'
+include 'logging-consumer'
 
