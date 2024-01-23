@@ -1,5 +1,17 @@
 version: '3'
 services:
+  axon-server:
+    container_name: axon-server
+    image: axoniq/axonserver:4.6.3-jdk-11-dev
+    networks:
+      - fastcampuspay_network
+    ports:
+      - "8024:8024"
+      - "8124:8124"
+    volumes:
+      - ./axon-server-se/data:/axonserver/data
+      - ./axon-server-se/events:/axonserver/events
+      - ./axon-server-se/config:/axonserver/config:ro
   mysql:
     image: mysql:8.0
     networks:
@@ -174,6 +186,7 @@ services:
       - LOGGING_TOPIC=fastcampus.logging.out.stdout
       - TASK_TOPIC=fastcampus.task.topic
       - TASK_RESULT_TOPIC=fastcampus.task.result.topic
+
 networks:
   fastcampuspay_network:
     driver: bridge

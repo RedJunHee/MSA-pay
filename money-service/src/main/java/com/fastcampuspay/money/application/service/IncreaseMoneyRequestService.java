@@ -4,10 +4,16 @@ import com.fastcampuspay.common.CountDownLatchManager;
 import com.fastcampuspay.common.RechargingMoneyTask;
 import com.fastcampuspay.common.SubTask;
 import com.fastcampuspay.common.UseCase;
+import com.fastcampuspay.money.adapter.axon.command.CreateMoneyCommand;
+import com.fastcampuspay.money.adapter.axon.command.IncreaseMemberMoneyCommand;
 import com.fastcampuspay.money.adapter.out.persistence.MemberMoneyJpaEntity;
 import com.fastcampuspay.money.adapter.out.persistence.MoneyChangingRequestMapper;
+import com.fastcampuspay.money.application.port.in.CreateMemberMoneyCommand;
+import com.fastcampuspay.money.application.port.in.CreateMemberMoneyUseCase;
 import com.fastcampuspay.money.application.port.in.IncreaseMoneyRequestCommand;
 import com.fastcampuspay.money.application.port.in.IncreaseMoneyRequestUseCase;
+import com.fastcampuspay.money.application.port.out.CreateMemberMoneyPort;
+import com.fastcampuspay.money.application.port.out.GetMemberMoneyPort;
 import com.fastcampuspay.money.application.port.out.GetMembershipPort;
 import com.fastcampuspay.money.application.port.out.IncreaseMoneyPort;
 import com.fastcampuspay.money.application.port.out.SendRechargingMoneyTaskPort;
@@ -22,10 +28,12 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+import org.axonframework.commandhandling.gateway.CommandGateway;
+
 @UseCase
 @RequiredArgsConstructor
 @Transactional
-public class IncreaseMoneyRequestService implements IncreaseMoneyRequestUseCase {
+public class IncreaseMoneyRequestService implements IncreaseMoneyRequestUseCase, CreateMemberMoneyUseCase {
 
 
     private final CountDownLatchManager countDownLatchManager;
@@ -33,6 +41,9 @@ public class IncreaseMoneyRequestService implements IncreaseMoneyRequestUseCase 
     private final GetMembershipPort getMembershipPort;
     private final IncreaseMoneyPort increaseMoneyPort;
     private final MoneyChangingRequestMapper mapper;
+    private final CommandGateway commandGateway;
+    private final GetMemberMoneyPort getMemberMoneyPort;
+    private final CreateMemberMoneyPort createMemberMoneyPort;
 
     @Override
     public MoneyChangingRequest increaseMoneyRequest(IncreaseMoneyRequestCommand command) {
@@ -69,7 +80,6 @@ public class IncreaseMoneyRequestService implements IncreaseMoneyRequestUseCase 
         // 6-2. 결과가 실패라면, 실패라고 MoneyChangingRequest 상태값을 변동 후에 리턴
         return null;
     }
-
     @Override
     public MoneyChangingRequest increaseMoneyRequestAsync(IncreaseMoneyRequestCommand command){
 
@@ -154,5 +164,47 @@ public class IncreaseMoneyRequestService implements IncreaseMoneyRequestUseCase 
         // 5. Consume OK, -> Logic
 
         return null;
+    }
+    @Override
+    public void increaseMoneyRequestByEvent(IncreaseMoneyRequestCommand command) {
+        MemberMoneyJpaEntity memberMoneyEntity = getMemberMoneyPort.getMemberMoney(new MemberMoney.MembershipId(command.getTargetMembershipId()));
+        String moneyIdentifier = memberMoneyEntity.getAggregateIdentifier();
+
+        String aggregateIdentifier = memberMoneyEntity.getAggregateIdentifier();
+        //command
+        commandGateway.send(IncreaseMemberMoneyCommand.builder()
+                    .aggregateIdentifier(aggregateIdentifier)
+                    .amount(command.getAmount())
+                    .membershipId(command.getTargetMembershipId())
+                    .build())
+            .whenComplete((o, throwable) -> {
+                if(throwable != null){
+                    System.out.println("throwable = " + throwable);
+                    throw new RuntimeException(throwable);
+                }else {
+                    // Increase money -> money increase
+                    System.out.println("increaseMoney result = " + o);
+                    increaseMoneyPort.increaseMoney(
+                        new MemberMoney.MembershipId(command.getTargetMembershipId())
+                        ,command.getAmount());
+                }
+            });
+    }
+
+    @Override
+    public void createMemberMoney(CreateMemberMoneyCommand command) {
+        commandGateway.send(CreateMoneyCommand.builder().membershipId(command.getTargetMembershipId()).build())
+            // 성공 할때 까지 기다렸다가 성공할때 이벤트 받음.
+            .whenComplete((Object result, Throwable throwable) -> {
+                if (throwable == null) {
+                    System.out.println("Create Money Aggregate ID:" + result.toString());
+                    createMemberMoneyPort.createMemberMoney(
+                        new MemberMoney.MembershipId(command.getTargetMembershipId())
+                        , new MemberMoney.MoneyAggregateIdentifier(result.toString()));
+                } else {
+                    throwable.printStackTrace();
+                    System.out.println("error : " + throwable.getMessage());
+                }
+            });
     }
 }
