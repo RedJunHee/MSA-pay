@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberShipStatus {
-
-	private String memberShipId;
-	private boolean isValid;
+public class MembershipStatus {
+    private String membershipId;
+    private boolean isValid;
 }

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @ExternalSystemAdapter
 @RequiredArgsConstructor
-public class BankAccountAdapter implements RequestBankAccountInfoPort , RequestExternalFirmbankingPort {
+public class BankAccountAdapter implements RequestBankAccountInfoPort, RequestExternalFirmbankingPort {
 
     @Override
     public BankAccount getBankAccountInfo(GetBankAccountRequest request) {
@@ -16,7 +16,6 @@ public class BankAccountAdapter implements RequestBankAccountInfoPort , RequestE
         // 실제 은행 계좌 정보를 가져오고
 
         // 실제 은행 계좌 -> BankAccount
-
         return new BankAccount(request.getBankName(), request.getBankAccountNumber(), true);
     }
 

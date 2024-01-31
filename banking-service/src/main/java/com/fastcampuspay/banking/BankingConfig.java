@@ -1,5 +1,6 @@
 package com.fastcampuspay.banking;
 
+
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -7,3 +8,4 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan("com.fastcampuspay.common")
 public class BankingConfig {
 }
+

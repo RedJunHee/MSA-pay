@@ -1,49 +1,43 @@
 package com.fastcampuspay.banking.adapter.out.service;
 
-import org.springframework.stereotype.Component;
-
 import com.fastcampuspay.banking.application.port.out.GetMembershipPort;
-import com.fastcampuspay.banking.application.port.out.MemberShipStatus;
+import com.fastcampuspay.banking.application.port.out.MembershipStatus;
 import com.fastcampuspay.common.CommonHttpClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class MembershipServiceAdapter implements GetMembershipPort {
 
-	private CommonHttpClient commonHttpClient;
-	private final String membershipServiceUrl;
+    private final CommonHttpClient commonHttpClient;
 
-	public MembershipServiceAdapter(CommonHttpClient commonHttpClient,
-				@Value("${service.membership.url}") String membershipServiceUrl) {
-		this.commonHttpClient = commonHttpClient;
-		this.membershipServiceUrl = membershipServiceUrl;
-	}
+    private final String membershipServiceUrl;
 
-	@Override
-	public MemberShipStatus getMemberShip(String membershipId) {
+    public MembershipServiceAdapter(CommonHttpClient commonHttpClient,
+                                     @Value("${service.membership.url}") String membershipServiceUrl) {
+        this.commonHttpClient = commonHttpClient;
+        this.membershipServiceUrl = membershipServiceUrl;
+    }
 
-		String url = String.join("/" , membershipServiceUrl, "membership", membershipId);
-		try {
-			String jsonResponse = commonHttpClient.sendGetRequest(url).body();
+    @Override
+    public MembershipStatus getMembership(String membershipId) {
 
-			//json Membership
-			ObjectMapper mapper = new ObjectMapper();
-			Membership memberShip = mapper.readValue(jsonResponse, Membership.class);
+        String url = String.join("/", membershipServiceUrl, "membership", membershipId);
+        try {
+            String jsonResponse = commonHttpClient.sendGetRequest(url).body();
+            // json Membership
 
-			if(memberShip.isValid()){
-				return new MemberShipStatus(memberShip.getMembershipId(),true);
-			}
+            ObjectMapper mapper = new ObjectMapper();
+            Membership membership = mapper.readValue(jsonResponse, Membership.class);
 
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		// 실제로 http call
-		// http client
-
-
-
-		return null;
-	}
+            if (membership.isValid()){
+                return new MembershipStatus(membership.getMembershipId(), true);
+            } else {
+                return new MembershipStatus(membership.getMembershipId(), false);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
